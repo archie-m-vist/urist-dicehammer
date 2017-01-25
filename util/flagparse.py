@@ -1,4 +1,4 @@
-from fishutil import is_integer
+from util.fishutil import is_integer
 
 def parse_flags (flags):
    output = {}

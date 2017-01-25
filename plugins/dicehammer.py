@@ -1,57 +1,106 @@
 if __name__ == '__main__':
    import sys
 
-import random
-from flagparse import parse_flags
-from fishutil import is_integer
-from randList import randomFromList
+import random, re
+from discord.ext import commands
+from util.flagparse import parse_flags
+from util.fishutil import is_integer
+from data.randList import randomFromList, lists
 
-import re
-
-from disco.bot import Bot, Plugin, BotConfig
 roll_regex = re.compile("(\d*#)?(\d*)d(\d+)((\+|-)(\d+))?")
 
-class Dicehammer(Plugin):
-   @Plugin.command('coinflip', '[number:int]')
-   def on_coinflip_command(self,event,number=1):
-      heads, tails = coinflip(number)
+class Dicehammer:
+   def __init__ (self, bot):
+      self.bot = bot
+
+   @commands.command(pass_context = True)
+   async def coinflip(self,ctx,number=1):
+      """
+         Flips a number of coins.
+         
+         Arguments:
+          - number (optional): Number of coins to flip. If not provided, defaults to 1.
+      """
+      heads, tails = run_coinflip(number)
+      user = ctx.message.author.mention
       if number < 1:
-         event.msg.reply("{} attempted to flip negative coins, and only got reminded of their debts.".format(event.msg.author.mention))
+         message = "{} attempted to flip negative coins, and only got reminded of their debts.".format(user)
       elif number > 1:
-         event.msg.reply("{} flipped {} coins, and got **{} heads** and **{} tails**.".format(event.msg.author.mention, number, heads, tails))
+         message = "{} flipped {} coins, and got **{} heads** and **{} tails**.".format(user, number, heads, tails)
       else:
          result = 'heads' if heads > 0 else 'tails'
-         event.msg.reply("{} flipped a coin and got **{}**.".format(event.msg.author.mention, result))
+         message = "{} flipped a coin and got **{}**.".format(user, result)
+      await(self.bot.say(message))
 
-   @Plugin.command('choose', '<options:str...>')
-   def on_choose_command(self,event,options = None):
-      options = options.split(',')
-      if len(options) == 1:
-         result = randomFromList(options[0])
-         if result is not None:
-            event.msg.reply("{} gets: **{}**".format(event.msg.author.mention,result))
+   @commands.group(pass_context = True)
+   async def choose(self,ctx,*options):
+      """
+         Chooses a single element from a list.
+
+         Arguments:
+          - options: This can either be the name of a preconstructed list, or a list of items separated by commas. Items may contain any character other than a comma.
+      """
+      if ctx.invoked_subcommand == None:
+         user = ctx.message.author.mention
+         options = " ".join(options)
+         options = options.split(",")
+         if len(options) == 0:
+            message = "{} gives nothing and gets nothing in return.".format(user)
+         elif len(options) == 1:
+            if options[0] == "lists":
+               message = get_lists()
+            else:
+               result = randomFromList(options[0])
+               if result is not None:
+                  message = "{} gets: **{}**".format(user,result)
+               else:
+                  message = "{} unsurprisingly gets: **{}**".format(user,options[0])
          else:
-            event.msg.reply("{} unsurprisingly gets: **{}**".format(event.msg.author.mention,options[0]))
-      else:
-         result = random.choice(options)
-         event.msg.reply("{} gets: **{}**".format(event.msg.author.mention,result))
+            result = random.choice(options)
+            message = "{} gets: **{}**".format(user,result)
+         await(self.bot.say(message))
 
-   @Plugin.command('shuffle', '<options:str...>')
-   def on_shuffle_command(self,event,options):
-      options = options.split(',')
-      random.shuffle(options)
+   @choose.command(name='lists')
+   async def _lists(self):
+      """
+         Lists all available preconstructed lists.
+      """
+      message = get_lists()
+      await(self.bot.say(message))
+
+   @commands.command(pass_context = True)
+   async def shuffle(self,ctx,*options):
+      """
+         Randomises the ordering of the elements of a list.
+
+         Arguments:
+          - options: A list of items separated by commas. (shuffle does not accept preconstructed list names.)
+      """
+      user = ctx.message.author.mention
+      options = " ".join(options)
+      options = options.split(",")
       result = ""
       while (len(options) > 0):
          result += options.pop();
          if (len(options) > 0):
             result += ", "
-      event.msg.reply("{} gets: **{}**".format(event.msg.author.mention,result))      
+      message = "{} gets: **{}**".format(user,result)
+      await(self.bot.say(message))
 
-   @Plugin.command('roll', '<dstring:str> [flags:str...]')
-   def on_roll_command(self,event,dstring,flags=""):
+   @commands.group(pass_context = True)
+   async def roll(self,ctx,dstring,*flags):
+      """
+         Rolls dice.
+
+         Arguments:
+          - dstring: A dice string.
+          - flags: A variety of flags. See subcommands for specific flag usage.
+      """
+      user = ctx.message.author.mention
       matched = roll_regex.match(dstring)
+      flags = " ".join(flags)
       if matched == None:
-         event.msg.reply("invalid dice string: "+dstring)
+         message = "{} supplied invalid dice string: {}".format(user,dstring)
       else:
          rolls = int(matched.group(1)[0:-1]) if matched.group(1) is not None else 1
          count = int(matched.group(2)) if matched.group(2) is not '' else 1
@@ -60,27 +109,24 @@ class Dicehammer(Plugin):
          flags = flags.split(" ")
 
          if rolls == 0 or count == 0 or sides == 0:
-            event.msg.reply("{} rolled 0, and shouldn't have expected anything else.".format(event.msg.author.mention))
-            return
-
-         if rolls == 1:
-            total, results = roll(count,sides,modifier,flags)
+            message = "{} rolled 0, and shouldn't have expected anything else.".format(user)
          else:
-            total, results = multiroll(rolls,count,sides,modifier,flags)
+            if rolls == 1:
+               total, results = roll(count,sides,modifier,flags)
+            else:
+               total, results = multiroll(rolls,count,sides,modifier,flags)
+            if isinstance(results,str): # normal case
+               message ="{} rolled {}: **{}** {}".format(user,dstring,total,results)
+            else: # verbose flag for long messages
+               message = "{} rolled {}: **{}**".format(user,dstring,total)
+               while len(results) > 0:
+                  await(self.bot.say(message))
+                  message = results.pop()
+         await(self.bot.say(message))
 
-         if isinstance(results,str): # normal case
-            event.msg.reply("{} rolled {}: **{}** {}".format(event.msg.author.mention,dstring,total,results))
-         else: # verbose flag for long messages
-            event.msg.reply("{} rolled {}: **{}**".format(event.msg.author.mention,dstring,total))
-            while len(results) > 0:
-               event.msg.reply(results.pop())
-
-   @Plugin.command('ping')
-   def on_ping_command(self, event):
-      event.msg.reply('pong!')
 
 # flips a number of coins, returning the number of heads and the number of tails
-def coinflip (number):
+def run_coinflip (number):
    heads = 0
    for i in range(number):
       if random.randint(0,1) == 0:
@@ -245,8 +291,17 @@ def multiroll (rolls, count, sides, modifier, flags):
    # return
    return totals, results
 
+def get_lists():
+   message = "**Available lists are:**"
+   for lst in lists.keys():
+      message += " " + lst
+   return message
+
 def main ():
    print(roll(1, int(sys.argv[1]), int(sys.argv[2]), 0, sys.argv[3:]))
 
 if __name__ == '__main__':
    main()
+
+def setup (bot):
+    bot.add_cog(Dicehammer(bot))
