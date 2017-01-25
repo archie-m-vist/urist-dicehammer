@@ -4,6 +4,7 @@ if __name__ == '__main__':
 import random
 from flagparse import parse_flags
 from fishutil import is_integer
+from randList import randomFromList
 
 import re
 
@@ -12,7 +13,7 @@ roll_regex = re.compile("(\d*#)?(\d*)d(\d+)((\+|-)(\d+))?")
 
 class Dicehammer(Plugin):
    @Plugin.command('coinflip', '[number:int]')
-   def on_coinflip_command(self,event,number="1"):
+   def on_coinflip_command(self,event,number=1):
       heads, tails = coinflip(number)
       if number < 1:
          event.msg.reply("{} attempted to flip negative coins, and only got reminded of their debts.".format(event.msg.author.mention))
@@ -22,6 +23,30 @@ class Dicehammer(Plugin):
          result = 'heads' if heads > 0 else 'tails'
          event.msg.reply("{} flipped a coin and got **{}**.".format(event.msg.author.mention, result))
 
+   @Plugin.command('choose', '<options:str...>')
+   def on_choose_command(self,event,options = None):
+      options = options.split(',')
+      if len(options) == 1:
+         result = randomFromList(options[0])
+         if result is not None:
+            event.msg.reply("{} gets: **{}**".format(event.msg.author.mention,result))
+         else:
+            event.msg.reply("{} unsurprisingly gets: **{}**".format(event.msg.author.mention,options[0]))
+      else:
+         result = random.choice(options)
+         event.msg.reply("{} gets: **{}**".format(event.msg.author.mention,result))
+
+   @Plugin.command('shuffle', '<options:str...>')
+   def on_shuffle_command(self,event,options):
+      options = options.split(',')
+      random.shuffle(options)
+      result = ""
+      while (len(options) > 0):
+         result += options.pop();
+         if (len(options) > 0):
+            result += ", "
+      event.msg.reply("{} gets: **{}**".format(event.msg.author.mention,result))      
+
    @Plugin.command('roll', '<dstring:str> [flags:str...]')
    def on_roll_command(self,event,dstring,flags=""):
       matched = roll_regex.match(dstring)
@@ -29,7 +54,7 @@ class Dicehammer(Plugin):
          event.msg.reply("invalid dice string: "+dstring)
       else:
          rolls = int(matched.group(1)[0:-1]) if matched.group(1) is not None else 1
-         count = int(matched.group(2))
+         count = int(matched.group(2)) if matched.group(2) is not '' else 1
          sides = int(matched.group(3))
          modifier = int(matched.group(4)) if matched.group(4) is not None else 0
          flags = flags.split(" ")
