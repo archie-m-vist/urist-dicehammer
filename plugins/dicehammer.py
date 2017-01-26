@@ -126,6 +126,7 @@ class Dicehammer:
 
    # placeholders for documentation purposes
    @roll.command(name="drop")
+   def drop ():
       """Automatically drop highest/lowest rolls.
 
       Additional Options:
@@ -134,6 +135,7 @@ class Dicehammer:
       """
       return
    @roll.command(name="verbose")
+   def verbose ():
       """Toggles verbose output for very large rolls."""
       return
    @roll.command(name="explode")
