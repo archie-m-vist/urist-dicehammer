@@ -126,7 +126,7 @@ class Dicehammer:
 
    # placeholders for documentation purposes
    @roll.command(name="drop")
-   def drop ():
+   async def drop ():
       """Automatically drop highest/lowest rolls.
 
       Additional Options:
@@ -135,11 +135,11 @@ class Dicehammer:
       """
       return
    @roll.command(name="verbose")
-   def verbose ():
+   async def verbose ():
       """Toggles verbose output for very large rolls."""
       return
    @roll.command(name="explode")
-   def explode ():
+   async def explode ():
       """Toggles exploding dice (i.e., extra roll on high or low result).
 
       Additional Options:
