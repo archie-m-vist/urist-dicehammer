@@ -1,4 +1,4 @@
-from config import dbuser, dbpass, dbname
+from secret import dbuser, dbpass, dbname
 # database setup
 import pymysql as mariadb
 dbase = mariadb.connect(user=dbuser, password=dbpass, database=dbname)
