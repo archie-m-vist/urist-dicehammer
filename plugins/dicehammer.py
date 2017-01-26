@@ -93,7 +93,7 @@ class Dicehammer:
          Rolls dice.
 
          Arguments:
-          - dstring: A dice string.
+          - dstring: A dice string. dN to roll an N-sided die, MdN to roll M N-sided dice, R#MdN to roll M N-sided dice R times. Supports + afterwards for final modifiers.
           - flags: A variety of flags. See subcommands for specific flag usage.
       """
       user = ctx.message.author.mention
@@ -123,6 +123,28 @@ class Dicehammer:
                   await(self.bot.say(message))
                   message = results.pop()
          await(self.bot.say(message))
+
+   # placeholders for documentation purposes
+   @roll.command(name="drop")
+      """Automatically drop highest/lowest rolls.
+
+      Additional Options:
+       - lowest n: Drops the lowest n (default 1) dice from each MdN roll.
+       - highest n: Drops the highest n (default 1) dice from each MdN roll.
+      """
+      return
+   @roll.command(name="verbose")
+      """Toggles verbose output for very large rolls."""
+      return
+   @roll.command(name="explode")
+   def explode ():
+      """Toggles exploding dice (i.e., extra roll on high or low result).
+
+      Additional Options:
+       - up n: Explode up, adding the values from the total, upon rolling between n and the number of sides. Default for n is 1, and exploding up is the default behaviour.
+       - down n: Explode down, subtracting the values from the total, upon rolling between 1 and n. Default for n is 1.
+       - max n: Caps the number of consecutive explosions per die (default 1)."""
+      return
 
 
 # flips a number of coins, returning the number of heads and the number of tails
