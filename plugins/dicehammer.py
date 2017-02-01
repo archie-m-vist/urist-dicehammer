@@ -10,6 +10,9 @@ from data.randList import randomFromList, lists
 roll_regex = re.compile("(\d*#)?(\d*)d(\d+)((\+|-)(\d+))?")
 
 class Dicehammer:
+   """
+      Plugin for all dice and random-generation utilities.
+   """
    def __init__ (self, bot):
       self.bot = bot
 
