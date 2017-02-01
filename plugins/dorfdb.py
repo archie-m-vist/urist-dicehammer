@@ -1,11 +1,9 @@
-from secret import dbuser, dbpass, dbname
+import secret
+from discord.ext import commands
 # database setup
 import pymysql as mariadb
-dbase = mariadb.connect(user=dbuser, password=dbpass, database=dbname)
+dbase = mariadb.connect(user=secret.dbuser, password=secret.dbpass, database=secret.dbname)
 cursor = dbase.cursor()
-
-# disco setup
-from disco.bot import Bot, Plugin
 
 toggle_fields = ["memes", "verbose"]
 config_fields = []
@@ -27,17 +25,33 @@ def check_field(field, sid, lowered=False):
    result = cursor.fetchone();
    return result[0]
 
-class DorfDB(Plugin):
-   @Plugin.command('toggle', '<field:str> [value:str]')
-   def on_toggle_command(self, event, field, value="flip"):
-      # process arguments and get server ID
+"""Configuration commands, including database access."""
+class Bookkeeper:
+   def __init__ (self,bot):
+      self.bot = bot
+
+   @commands.command(pass_context = True)
+   async def toggle(self, ctx, field, value="flip"):
+      """
+         Toggle the value of a boolean field.
+
+         Arguments:
+          - field: Field to be toggled.
+          - value: Can be true, on, false, off, or flip.
+                   true and on are equivalent, as are false and off.
+                   flip is the default, and will set the value to the opposite of its current value.
+      """
+      # process arguments
       field = field.lower();
       value = value.lower();
-      sid = event.msg.guild.id;
-      print(sid)
+      # discord context information
+      sid = ctx.message.server.id
+      if sid == None:
+         await(self.bot.say("Cannot configure bot by PM."))
+         return
       # make sure field is a trusted value
       if field not in toggle_fields:
-         event.msg.reply("**Error:** Unknown field {}.".format(field))
+         await(self.bot.say("**Error:** Unknown field {}.".format(field)))
          return
       # make VALUE an sql TRUE/FALSE
       onstrings = ["on", "true"]
@@ -54,21 +68,34 @@ class DorfDB(Plugin):
          else:
             value = 0 if cursor.fetchone()[0] else 1
       else:
-         event.msg.reply("**Error:** Invalid argument {} to !toggle.".format(value))
+         await(self.bot.say("**Error:** Invalid argument {} to !toggle.".format(value)))
          return
       # insert data into table
       command = "INSERT INTO config (server,{}) VALUES (%s, %s) ON DUPLICATE KEY UPDATE {}=%s;".format(field,field)
       cursor.execute(command, (sid, value, value))
       dbase.commit()
 
-   @Plugin.command('check', '<field:str>')
-   def on_check_command(self, event, field):
+   @commands.command(pass_context = True)
+   async def check(self, ctx, field):
+      """
+         Check the value of a configuration field.
+         
+         Arguments:
+          - field: field to query.
+      """
       # process arguments and get server ID
       field = field.lower();
-      sid = event.msg.guild.id;
+      sid = ctx.message.server.id
+      if sid == None:
+         await(self.bot.say("Cannot configure bot by PM."))
+         return
       # fetch and return result
       result = check_field(field,sid,True)
       if result == None:
-         event.msg.reply("**Error:** Unknown field {}.".format(field))
+         message = "**Error:** Unknown field {}.".format(field)
       else:
-         event.msg.reply("Value of {}: {}".format(field,result))
+         message = "Value of {}: {}".format(field,result)
+      await(self.bot.say(message))
+
+def setup (bot):
+   bot.add_cog(Bookkeeper(bot))
