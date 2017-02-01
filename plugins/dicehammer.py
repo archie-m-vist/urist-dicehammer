@@ -125,24 +125,29 @@ class Dicehammer:
          await(self.bot.say(message))
 
    # placeholders for documentation purposes
-   @roll.command(name="drop", description = """Automatically drop highest/lowest rolls.
+   @roll.command(name="drop")
+   async def _drop (self):
+      """Automatically drop highest/lowest rolls.
 
       Additional Options:
        - lowest n: Drops the lowest n (default 1) dice from each MdN roll.
        - highest n: Drops the highest n (default 1) dice from each MdN roll.
-      """)
-   async def drop ():
+      """
       return
-   @roll.command(name="verbose", description = """Toggles verbose output for very large rolls.""")
-   async def verbose ():
-      return
-   @roll.command(name="explode", description = """Toggles exploding dice (i.e., extra roll on high or low result).
+
+   @roll.command(name="explode")
+   async def _explode (self):
+      """Toggles exploding dice (i.e., extra roll on high or low result).
 
       Additional Options:
        - up n: Explode up, adding the values from the total, upon rolling between n and the number of sides. Default for n is 1, and exploding up is the default behaviour.
        - down n: Explode down, subtracting the values from the total, upon rolling between 1 and n. Default for n is 1.
-       - max n: Caps the number of consecutive explosions per die (default 1).""")
-   async def explode ():
+       - max n: Caps the number of consecutive explosions per die (default 1)."""
+      return
+
+   @roll.command(name="verbose")
+   async def _verbose (self):
+      """Toggles verbose output for very large rolls."""
       return
 
 
