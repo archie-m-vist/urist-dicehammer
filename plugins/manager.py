@@ -41,45 +41,52 @@ def list_groups (sid, uid = None):
    groups = [x[0] for x in cursor.fetchall()]
    return groups
 
-#ctx.message.author.mention
+
 class Manager:
    def __init__ (self, bot):
       self.bot = bot
       self.owner = None
 
    @commands.command(pass_context = True)
-   async def join(self, ctx, *group):
+   async def join(self, ctx, *groups):
       """
-         Join or create a group.
+         Join or create one or more groups.
+
+         Group names can contain any Latin-1 character except for commas, and can be up to 30 characters in length.
+         If too long, names will automatically be truncated.
 
          Arguments:
-          - group: Name of the group to join or create.
+          - groups: Names of the group to join or create, separated by commas.
       """
-      group = " ".join(group)
+      groups = " ".join(groups)
+      groups = groups.split(",")
       uid = ctx.message.author.mention
       sid = ctx.message.server.id
-      if join_or_create_group(group, uid, sid):
-         await self.bot.say("{} has joined group {}.".format(uid, group))
-      else:
-         await self.bot.say("{} is already a member of group {}.".format(uid, group))
+      for group in groups:
+         if join_or_create_group(group, uid, sid):
+            await self.bot.say("{} has joined group {}.".format(uid, group))
+         else:
+            await self.bot.say("{} is already a member of group {}.".format(uid, group))
 
    @commands.command(pass_context = True)
-   async def leave(self,ctx,*group):
+   async def leave(self,ctx,*groups):
       """
-         Leave a group.
+         Leave one or more groups.
 
          When the last member leaves, the group will no longer exist, and can be reformed using !join.
 
          Arguments:
-          - group: Name of the group to leave.
+          - groups: Names of the groups to leave, separated by commas.
       """
-      group = " ".join(group)
+      groups = " ".join(groups)
+      groups = groups.split(",")
       uid = ctx.message.author.mention
       sid = ctx.message.server.id
-      if leave_group(group, uid, sid):
-         await self.bot.say("{} has left group {}.".format(uid, group))
-      else:
-         await self.bot.say("{} is not a member of group {}.".format(uid, group))
+      for group in groups:
+         if leave_group(group, uid, sid):
+            await self.bot.say("{} has left group {}.".format(uid, group))
+         else:
+            await self.bot.say("{} is not a member of group {}.".format(uid, group))
 
    @commands.command(pass_context = True)
    async def groups(self, ctx, user = None):
