@@ -1,7 +1,7 @@
 if __name__ == '__main__':
    import sys
 
-import random, re
+import random, re, math
 from discord.ext import commands
 from util.flagparse import parse_flags
 from util.fishutil import is_integer
@@ -125,7 +125,7 @@ class Dicehammer:
                while len(results) > 0:
                   await(self.bot.say(message))
                   message = results.pop()
-         await(self.bot.say(message))
+      await(self.bot.say(message))
 
    # placeholders for documentation purposes
    @roll.command(name="drop")
@@ -148,11 +148,18 @@ class Dicehammer:
        - max n: Caps the number of consecutive explosions per die (default 1)."""
       return
 
+   @roll.command(name="degrees")
+   async def _degrees (self):
+      """Calculates degrees of success against a given skill value. Requires an integer skill value as an argument.
+
+      Additional Options:
+       - zeroes [on/off]: Sets whether to count a "regular success" as +0 or +1, and a "regular failure" as -0 or -1. Default is on.
+      """
+
    @roll.command(name="verbose")
    async def _verbose (self):
       """Toggles verbose output for very large rolls."""
       return
-
 
 # flips a number of coins, returning the number of heads and the number of tails
 def run_coinflip (number):
@@ -244,6 +251,19 @@ def run_drop (total, results, value):
    results.append(removed)
    return total, results
 
+def run_degrees (total, results, value):
+   total = 0
+   zeroes = value[1]
+   skill = value[0]
+   for index in range(len(results)):
+      if is_integer(results[index]):
+         diff = (skill-results[index])/10
+         t = "+" if diff > 0 else "-"
+         degrees = int(diff) if zeroes is True else int(diff+math.copysign(1,diff))
+         total += degrees
+         results[index] = "{} ({}{})".format(results[index],t,abs(degrees))
+   return total, results
+
 def roll_parsed (count,sides,modifier,flags):
    """
    Rolls dice with preprocessed flags.
@@ -267,6 +287,8 @@ def roll_parsed (count,sides,modifier,flags):
    total = sum([x for x in results if is_integer(x)]) + modifier
    if "drop" in flags:
       total, results = run_drop(total, results, flags["drop"])
+   if "degrees" in flags:
+      total, results = run_degrees(total, results, flags["degrees"])
    
    return total, results
 
@@ -333,4 +355,4 @@ if __name__ == '__main__':
    main()
 
 def setup (bot):
-    bot.add_cog(Dicehammer(bot))
+   bot.add_cog(Dicehammer(bot))

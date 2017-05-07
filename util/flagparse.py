@@ -15,6 +15,9 @@ def parse_flags (flags):
       # drop highest/lowest
       if flag == "drop":
          index, output["drop"], errors = parse_drop(flags,index+1)
+      # degrees of success/failure
+      if flag == "degrees":
+         index, output["degrees"], errors = parse_degrees(flags,index+1)
       # verbose output
       elif flag == "verbose":
          output["verbose"] = True
@@ -102,4 +105,37 @@ def parse_explode (flags, index):
       else:
          break
       index += 1
+   return index, value, errors
+
+def parse_degrees (flags, index):
+   """
+   Processes the arguments to the ``degrees`` keyword.
+   
+   Parameters:
+         flags - list of flags
+         index - index of the first flag after the ``degrees`` keyword
+   
+   Returns:
+       index - the index of the first keyword after the last degrees argument
+       value - a list containing parsed arguments, to be stored in ``output["degrees"]`` by parse_flags
+             - value[0]: minimum (for explode up)/maximum (for explode down) value to explode on.
+                         Will be reduced by modular arithmetic to be between 1 and max sides.
+             - value[1]: True if zeroes are on, otherwise False.
+      errors - a list of errors, to be added to ``output["errors"]`` with extend().
+   """
+   value = [None, True]
+   errors = []
+   while ( index < len(flags) ):
+      temp = flags[index]
+      if temp == "zeroes":
+         if index+1 < len(flags) and flags[index+1] == "off":
+            index += 1
+            value[1] = False
+      elif is_integer(temp):
+         value[0] = int(temp)
+      else:
+         break
+      index += 1
+   if value[0] is None:
+      errors.append("Expected skill value after degrees flag.")
    return index, value, errors
