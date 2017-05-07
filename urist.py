@@ -6,7 +6,7 @@ description = '''Urist Dicehammer, providing highly-featured dice and Dwarf Fort
 
 bot = commands.Bot(command_prefix=prefix, description=description)
 
-extensions = ['plugins.admin','plugins.dicehammer']
+extensions = ['plugins.admin','plugins.dicehammer','plugins.bookkeeper', 'plugins.manager']
 
 @bot.event
 async def on_ready():
@@ -32,4 +32,11 @@ async def admin():
    await(bot.say(message))
 
 if __name__ == '__main__':
-   bot.run(token)
+   while True:
+      try:
+         bot.run(token)
+      except KeyboardInterrupt:
+         raise
+      except:
+         continue
+
