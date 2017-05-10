@@ -150,10 +150,10 @@ class Dicehammer:
 
    @roll.command(name="degrees")
    async def _degrees (self):
-      """Calculates degrees of success against a given skill value. Requires an integer skill value as an argument.
+      """Calculates degrees of success (a la Dark Heresy) against a given skill value. Requires an integer skill value as an argument.
 
       Additional Options:
-       - zeroes [on/off]: Sets whether to count a "regular success" as +0 or +1, and a "regular failure" as -0 or -1. Default is on.
+       - zeroes [on/off]: Sets whether to count a "regular success" as +0 or +1, and a "regular failure" as -0 or -1. Default is to use zeroes.
       """
 
    @roll.command(name="verbose")
@@ -253,8 +253,8 @@ def run_drop (total, results, value):
 
 def run_degrees (total, results, value):
    total = 0
-   zeroes = value[1]
    skill = value[0]
+   zeroes = value[1]
    for index in range(len(results)):
       if is_integer(results[index]):
          diff = (skill-results[index])/10
@@ -289,7 +289,6 @@ def roll_parsed (count,sides,modifier,flags):
       total, results = run_drop(total, results, flags["drop"])
    if "degrees" in flags:
       total, results = run_degrees(total, results, flags["degrees"])
-   
    return total, results
 
 def roll (count, sides, modifier, flags):
@@ -302,16 +301,7 @@ def roll (count, sides, modifier, flags):
       modifier - number being added/subtracted from tota
       flags - list of special flags such as ``explode`` or ``drop`` as a list of strings
    """
-   flags = parse_flags(flags)
-   if len(flags["errors"]) > 0:
-      return "Flag-parsing errors: ", flags["errors"]
-   flags = check_flags(flags,count,sides,modifier)
-   if len(flags["errors"]) > 0:
-      return "Flag-processing errors: ", flags["errors"]
-   total, results = roll_parsed(count,sides,modifier,flags)
-   # process results
-   results = process_results(results,flags)
-   return total, results
+   return multiroll(1,count,sides,modifier,flags)
 
 def multiroll (rolls, count, sides, modifier, flags):
    """
@@ -324,21 +314,45 @@ def multiroll (rolls, count, sides, modifier, flags):
       modifier - number being added/subtracted from tota
       flags - list of special flags such as ``explode`` or ``drop`` as a list of strings
    """
-   flags = parse_flags(flags)
+
+   # parse flags from input
+   try:
+      flags = parse_flags(flags)
+   except Exception as e:
+      return "Exception!", "Critical error during flag parsing, contact the administrator: {}".format(str(e))
    if len(flags["errors"]) > 0:
       return "Flag-parsing errors: ", flags["errors"]
-   flags = check_flags(flags,count,sides,modifier)
+
+   # check flag argument values and add information
+   try:
+      flags = check_flags(flags,count,sides,modifier)
+   except exception as e:
+      return "Exception!", "Critical error during flag checking, contact the administrator: {}".format(str(e))
    if len(flags["errors"]) > 0:
       return "Flag-processing errors: ", flags["errors"]
+
    totals = []
    results = []
    # roll repeatedly
    for i in range(rolls):
-      total, result = roll_parsed(count,sides,modifier,flags)
+      try:
+         total, result = roll_parsed(count,sides,modifier,flags)
+      except Exception as e:
+         return "Exception!", "Critical error during rolling, contact the administrator: {}".format(str(e))
       totals.append(total)
       results.append(process_results(result,flags))
+
+   # if only one roll, remove a level of list nesting
+   if rolls == 1:
+      totals = totals[0]
+      results = results[0]
+
    # process all results
-   results = process_results(results,flags)
+   try:
+      results = process_results(results,flags)
+   except Exception as e:
+      return "Exception!", "Critical error during result processing, contact the administrator: {}".format(str(e))
+
    # return
    return totals, results
 
