@@ -166,7 +166,7 @@ class Dicehammer:
       """Calculates successes for use in a dice pool system. Modifiers (+/- in dice string) will increase number of successes, not dice value.
 
       Additional Options:
-       - threshold n: Lowest value that counts as a success. Default is 60% of the number of sides per die, rounded down.
+       - threshold n: Lowest value that counts as a success. Default is 70% of the number of sides per die, rounded down.
        - botch n: Highest value that counts as a botch. Default is 1. 0 or off disables.
        - double n: Value for critical successes, counting double. Default is the number of sides per die. 0 or off disables."""
       return
