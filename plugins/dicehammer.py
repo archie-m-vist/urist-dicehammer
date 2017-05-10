@@ -311,7 +311,7 @@ def roll_parsed (count,sides,modifier,flags):
    return total, results
 
 def run_successes (total, results, value):
-   total = 0
+   total = value[3]
    total_botch = 0
    # unpack value
    threshold = value[0]
