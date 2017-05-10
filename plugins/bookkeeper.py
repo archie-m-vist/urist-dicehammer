@@ -1,9 +1,12 @@
 import secret
 from discord.ext import commands
 # database setup
-import pymysql as mariadb
-dbase = mariadb.connect(user=secret.dbuser, password=secret.dbpass, database=secret.dbname)
-cursor = dbase.cursor()
+try:
+   import pymysql as mariadb
+   dbase = mariadb.connect(user=secret.dbuser, password=secret.dbpass, database=secret.dbname)
+   cursor = dbase.cursor()
+except:
+   raise ImportError("Unable to connect to MySQL database. Ensure pymysql is installed and database server is running.")
 
 toggle_fields = ["memes", "verbose"]
 config_fields = []
