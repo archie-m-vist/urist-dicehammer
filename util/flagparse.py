@@ -8,23 +8,27 @@ def parse_flags (flags):
    while index < len(flags):
       # get the current flag
       flag = flags[index].lower()
+      errors = None
       # exploding dice
       if flag == "explode":
          index, output["explode"], errors = parse_explode(flags,index+1)
-         output["errors"].extend(errors)
       # drop highest/lowest
-      if flag == "drop":
+      elif flag == "drop":
          index, output["drop"], errors = parse_drop(flags,index+1)
       # degrees of success/failure
-      if flag == "degrees":
+      elif flag == "degrees":
          index, output["degrees"], errors = parse_degrees(flags,index+1)
       # verbose output
+      elif flag == "successes":
+         index, output["successes"], errors = parse_successes(flags,index+1)
       elif flag == "verbose":
          output["verbose"] = True
          index += 1
       # if word is not a flag, move to next index
       else:
          index += 1
+      if errors is not None and len(errors) > 0:
+         output["errors"].extend(errors)
    return output
 
 def parse_drop (flags, index):
@@ -56,7 +60,6 @@ def parse_drop (flags, index):
          break
       index += 1
    return index, value, errors
-
 
 def parse_explode (flags, index):
    """
@@ -138,4 +141,60 @@ def parse_degrees (flags, index):
       index += 1
    if value[0] is None:
       errors.append("Expected skill value after degrees flag.")
+   return index, value, errors
+
+def parse_successes (flags, index): 
+   """
+   Processes the arguments to the successes keyword.
+
+   Parameters:
+         flags - list of flags
+         index - index of the first flag after the degrees keyword
+
+   Returns: 
+       index - the index of the first keyword after the last degrees argument
+       value - a list containing parsed arguments, to be stored in output["successes"] by parse_flags
+             - value[0]: Minimum value to count as a success. Default None (set to 70% maximum value, rounded up, by check_flags).
+             - value[1]: Minimum value to count as a double success. Default None (set to maximum value by check_flags). 0 or off disables.
+             - value[2]: Maximum value to cause a botch if there are no successes. Default 1. 0 or off disables.
+      errors - a list of errors, to be added to output["errors"] with extend().
+   """ 
+   value = [None, None, 1]
+   errors = []
+   while ( index < len(flags) ):
+      temp = flags[index]
+      if temp == "threshold":
+         if index+1 < len(flags):
+            try:
+               value[0] = int(flags[index+1])
+               index += 1
+            except ValueError:
+               errors.append("Threshold value must be integer.")
+         else:
+            errors.append("Expected value after successes threshold flag.")
+      elif temp == "double":
+         if index+1 < len(flags):
+            if flags[index+1] == "off":
+               flags[index+1] = 0
+            try:
+               value[1] = int(flags[index+1])
+               index += 1
+            except ValueError:
+               errors.append("Double value must be integer or off.")
+         else:
+            error.append("Expected value after successes double flag.")
+      elif temp == "botch":
+         if index+1 < len(flags):
+            if flags[index+1] == "off":
+               flags[index+1] = 0
+            try:
+               value[2] = int(flags[index+1])
+               index += 1
+            except ValueError:
+               errors.append("Botch value must be integer or off.")
+         else:
+            errors.append("Expected value after successes botch flag.")
+      else:
+         break
+      index += 1
    return index, value, errors

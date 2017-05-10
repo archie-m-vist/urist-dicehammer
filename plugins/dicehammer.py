@@ -161,6 +161,16 @@ class Dicehammer:
       """Toggles verbose output for very large rolls."""
       return
 
+   @roll.command(name="successes")
+   async def _successes (self):
+      """Calculates successes for use in a dice pool system. Modifiers (+/- in dice string) will increase number of successes, not dice value.
+
+      Additional Options:
+       - threshold n: Lowest value that counts as a success. Default is 60% of the number of sides per die, rounded down.
+       - botch n: Highest value that counts as a botch. Default is 1. 0 or off disables.
+       - double n: Value for critical successes, counting double. Default is the number of sides per die. 0 or off disables."""
+      return
+
 # flips a number of coins, returning the number of heads and the number of tails
 def run_coinflip (number):
    heads = 0
@@ -193,6 +203,13 @@ def check_flags (flags, count, sides, modifier):
    if "drop" in flags:
       if flags["drop"][0] > count:
          flags["errors"].append("Dropping more dice than are rolled.")
+   if "successes" in flags:
+         if flags["successes"][0] is None:
+            flags["successes"][0] = math.ceil(0.7 * sides)
+         if flags["successes"][1] is None:
+            flags["successes"][1] = sides
+         flags["successes"].append(modifier)
+         print(flags["successes"])
    return flags
 
 def process_results (results, flags):
@@ -289,6 +306,30 @@ def roll_parsed (count,sides,modifier,flags):
       total, results = run_drop(total, results, flags["drop"])
    if "degrees" in flags:
       total, results = run_degrees(total, results, flags["degrees"])
+   if "successes" in flags:
+      total, results = run_successes(total, results, flags["successes"])
+   return total, results
+
+def run_successes (total, results, value):
+   total = 0
+   total_botch = 0
+   # unpack value
+   threshold = value[0]
+   double = value[1]
+   botch = value[2]
+   for index in range(len(results)):
+      success = 0
+      if is_integer(results[index]):
+         if double != 0 and results[index] >= double:
+            success = 2
+         elif results[index] >= threshold:
+            success = 1
+         if botch != 0 and results[index] <= botch:
+            total_botch += 1
+         total += success
+         results[index] = "{} ({})".format(results[index],success)
+   if total == 0 and botch != 0:
+      total = "Botch {}".format(total_botch)
    return total, results
 
 def roll (count, sides, modifier, flags):
