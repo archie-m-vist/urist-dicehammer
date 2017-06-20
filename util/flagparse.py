@@ -52,13 +52,14 @@ def parse_drop (flags, index):
       temp = flags[index].lower()
       if temp == "highest" or temp == "high":
          value[1] = 'h'
-      if temp == "lowest" or temp == "low":
+      elif temp == "lowest" or temp == "low":
          value[1] = 'l'
-      if is_integer(temp):
+      elif is_integer(temp):
          value[0] = int(temp)
       else:
          break
       index += 1
+   print(index,value)
    return index, value, errors
 
 def parse_explode (flags, index):
