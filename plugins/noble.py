@@ -8,18 +8,18 @@ class Noble:
       self.bot = bot
 
    @commands.command(pass_context = True)
-   async def ff (self, ctx):
+   async def join (self, ctx, name):
       roles = ctx.message.server.roles
-      ffRole = None
+      joinrole = None
       for role in roles:
-         if role.name == "FF":
-            ffRole = role
+         if role.name.lower() == name.lower():
+            joinrole = role
             break
-      if ffRole is None:
-         await(self.bot.say("Fantasy football is not enabled on this server."))
+      if joinrole is None:
+         await(self.bot.say("Role {} not found. Check with your server admin. (Names are *not* case-sensitive.)"))
          return
-      await(self.bot.add_roles(ctx.message.author, ffRole))
-      await(self.bot.say("{} has joined fantasy football.".format(ctx.message.author.mention)))
+      await(self.bot.add_roles(ctx.message.author, joinrole))
+      await(self.bot.say("{} has joined role {}.".format(ctx.message.author.mention, joinrole.name)))
 
 def setup (bot):
    bot.add_cog(Noble(bot))
