@@ -82,6 +82,7 @@ class Dicehammer:
       user = ctx.message.author.mention
       options = " ".join(options)
       options = options.split(",")
+      random.shuffle(options)
       result = ""
       while (len(options) > 0):
          result += options.pop();
