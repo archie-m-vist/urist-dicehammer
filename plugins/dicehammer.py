@@ -329,7 +329,7 @@ def run_successes (total, results, value):
             total_botch += 1
          total += success
          results[index] = "{} ({})".format(results[index],success)
-   if total == 0 and botch != 0:
+   if total == 0 and total_botch > 0:
       total = "Botch {}".format(total_botch)
    return total, results
 
