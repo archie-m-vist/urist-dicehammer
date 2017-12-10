@@ -9,7 +9,7 @@ class Jeweler:
 
    @commands.command(pass_context = True)
    async def pin (self, ctx):
-      print("Test!")
+      """Pins a message if Urist has appropriate permissions."""
       try:
          await self.bot.pin_message(ctx.message)
       except:
