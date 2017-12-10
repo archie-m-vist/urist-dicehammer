@@ -287,7 +287,7 @@ def run_degrees (total, results, value):
    for index in range(len(results)):
       if is_integer(results[index]):
          diff = (skill-results[index])/10
-         t = "+" if skill-results[index] >= 0 else "-"
+         t = "+" if diff >= 0 else "-"
          degrees = int(diff) if zeroes is True else int(diff+math.copysign(1,diff))
          total += degrees
          results[index] = "{} ({}{})".format(results[index],t,abs(degrees))
