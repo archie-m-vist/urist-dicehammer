@@ -8,6 +8,7 @@ class Admin:
 
    @commands.command(pass_context=True,hidden=True)
    async def load (self,ctx,module):
+      """Loads a bot module."""
       module = "plugins."+module
       if self.owner == None:
          info = await(self.bot.application_info())
@@ -20,6 +21,28 @@ class Admin:
             await(self.bot.say('{}: {}'.format(type(e).__name__, e)))
          else:
             await(self.bot.say("Loaded module {}".format(module)))
+      else:
+         self.bot.say("that's a grudgin', {}".format(ctx.message.author.mention))
+         print("BOOK OF GRUDGES:",ctx.message.author,"load")
+
+   @commands.command(pass_context=True,hidden=True)
+   async def unload (self,ctx,module):
+      """Reloads a bot module."""
+      module = "plugins."+module
+      if self.owner == None:
+         info = await(self.bot.application_info())
+         self.owner = info.owner
+      if self.owner == ctx.message.author:
+         try:
+            self.bot.unload_extension(module)
+         except Exception as e:
+            await(self.bot.say("Error unloading module {}:".format(module)))
+            await(self.bot.say('{}: {}'.format(type(e).__name__, e)))
+         else:
+            await(self.bot.say("Unloaded module {}".format(module)))
+      else:
+         self.bot.say("that's a grudgin', {}".format(ctx.message.author.mention))
+         print("BOOK OF GRUDGES:",ctx.message.author,"unload")
 
    @commands.command(pass_context=True,hidden=True)
    async def reload (self,ctx,module):
@@ -37,6 +60,9 @@ class Admin:
             await(self.bot.say('{}: {}'.format(type(e).__name__, e)))
          else:
             await(self.bot.say("Reloaded module {}".format(module)))
+      else:
+         await self.bot.say("that's a grudgin', {}".format(ctx.message.author.mention))
+         print("BOOK OF GRUDGES:",ctx.message.author,"reload")
 
 def setup (bot):
     bot.add_cog(Admin(bot))
