@@ -6,8 +6,10 @@ from discord.ext import commands
 from util.flagparse import parse_flags
 from util.fishutil import is_integer
 from data.randList import randomFromList, lists
+from random_words import RandomWords
 
 roll_regex = re.compile("(\d*#)?(\d*)d(\d+)((\+|-)(\d+))?")
+rw = RandomWords()
 
 class Dicehammer:
    """
@@ -172,6 +174,15 @@ class Dicehammer:
        - double n: Value for critical successes, counting double. Default is the number of sides per die. 0 or off disables."""
       return
 
+   @commands.command(pass_context = True)
+   async def word (self, ctx):
+      """Generates a random word."""
+      word = rw.random_word()
+      message = "{} got '{}'.".format(ctx.message.author.mention, word)
+      await(self.bot.say(message))
+
+
+
 # flips a number of coins, returning the number of heads and the number of tails
 def run_coinflip (number):
    heads = 0
@@ -276,7 +287,7 @@ def run_degrees (total, results, value):
    for index in range(len(results)):
       if is_integer(results[index]):
          diff = (skill-results[index])/10
-         t = "+" if diff > 0 else "-"
+         t = "+" if skill-results[index] >= 0 else "-"
          degrees = int(diff) if zeroes is True else int(diff+math.copysign(1,diff))
          total += degrees
          results[index] = "{} ({}{})".format(results[index],t,abs(degrees))
@@ -399,10 +410,10 @@ def multiroll (rolls, count, sides, modifier, flags):
    return totals, results
 
 def get_lists():
-   message = "**Available lists are:**"
+   message = "**Available lists are: **"
    for lst in lists.keys():
-      message += " " + lst
-   return message
+      message += lst + ", "
+   return message[0:-2]
 
 def main ():
    print(roll(1, int(sys.argv[1]), int(sys.argv[2]), 0, sys.argv[3:]))
