@@ -64,5 +64,17 @@ class Admin:
          await self.bot.say("that's a grudgin', {}".format(ctx.message.author.mention))
          print("BOOK OF GRUDGES:",ctx.message.author,"reload")
 
+   @commands.command(pass_context=True,hidden=True)
+   async def stop (self,ctx):
+      """Remotely shuts down bot instances."""
+      if self.owner == None:
+         info = await(self.bot.application_info())
+         self.owner = info.owner
+      if self.owner == ctx.message.author:
+         raise SystemExit()
+      else:
+         await self.bot.say("that's a grudgin', {}".format(ctx.message.author.mention))
+         print("BOOK OF GRUDGES:",ctx.message.author,"stop")
+
 def setup (bot):
     bot.add_cog(Admin(bot))
