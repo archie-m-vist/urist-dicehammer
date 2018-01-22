@@ -8,10 +8,11 @@ class Manager:
       self.bot = bot
 
    @commands.command(pass_context = True)
-   async def join (self, ctx, name):
+   async def join (self, ctx, *name):
       """
          Joins a role which is manageable by the bot.
       """
+      name = " ".join(name)
       roles = ctx.message.server.roles
       joinrole = None
       for role in roles:
@@ -19,7 +20,7 @@ class Manager:
             joinrole = role
             break
       if joinrole is None:
-         await(self.bot.say("Role {} not found. Check with your server admin. (Names are *not* case-sensitive.)"))
+         await(self.bot.say("Role {} not found. Check with your server admin. (Names are *not* case-sensitive.)".format(name)))
          return
       await(self.bot.add_roles(ctx.message.author, joinrole))
       await(self.bot.say("{} has joined role {}.".format(ctx.message.author.mention, joinrole.name)))
