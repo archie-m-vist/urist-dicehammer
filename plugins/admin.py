@@ -71,6 +71,7 @@ class Admin:
          info = await(self.bot.application_info())
          self.owner = info.owner
       if self.owner == ctx.message.author:
+         await(self.bot.say("Shutting down."))
          raise SystemExit()
       else:
          await self.bot.say("that's a grudgin', {}".format(ctx.message.author.mention))
