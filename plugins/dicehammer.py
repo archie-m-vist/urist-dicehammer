@@ -221,7 +221,6 @@ def check_flags (flags, count, sides, modifier):
          if flags["successes"][1] is None:
             flags["successes"][1] = sides
          flags["successes"].append(modifier)
-         print(flags["successes"])
    return flags
 
 def process_results (results, flags):
