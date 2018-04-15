@@ -110,14 +110,15 @@ class Dicehammer:
          print(diceMode[ctx.message.flags])
       except:
          pass
-      if len(flags) == 0 and ctx.message.channel in diceMode:
-         flags = diceMode[ctx.message.channel][0]
-         flags = " ".join(flags)
-      elif ctx.message.channel in diceMode and len(flags) == 1+diceMode[ctx.message.channel][1] and flags[0] == "!":
-         mode = " ".join(diceMode[ctx.message.channel][0])
-         flags = mode.format(*flags[1:])
-      else:
-         flags = " ".join(flags)
+      if ctx.message.channel in diceMode:
+         mode = diceMode[ctx.message.channel][0]
+         count = diceMode[ctx.message.channel][1]
+         if count == 0 and len(flags) == 0:
+            flags = mode
+         elif len(flags) == 1+count and flags[0] == "!":
+            mode = " ".join(mode)
+            flags = mode.format(*flags[1:]).split(" ")
+      print(flags)
       if matched == None:
          message = "{} supplied invalid dice string: {}".format(user,dstring)
       else:
@@ -125,7 +126,6 @@ class Dicehammer:
          count = int(matched.group(2)) if matched.group(2) is not '' else 1
          sides = int(matched.group(3))
          modifier = int(matched.group(4)) if matched.group(4) is not None else 0
-         flags = flags.split(" ")
 
          if rolls == 0 or count == 0 or sides == 0:
             message = "{} rolled 0, and shouldn't have expected anything else.".format(user)
