@@ -8,6 +8,8 @@ from util.fishutil import is_integer
 from data.randList import randomFromList, lists
 from random_words import RandomWords
 
+diceMode = {}
+
 roll_regex = re.compile("(\d*#)?(\d*)d(\d+)((\+|-)(\d+))?")
 rw = RandomWords()
 
@@ -104,6 +106,8 @@ class Dicehammer:
       """
       user = ctx.message.author.mention
       matched = roll_regex.match(dstring)
+      if len(flags) == 0 and ctx.message.channel in diceMode:
+         flags = diceMode[ctx.message.channel]
       flags = " ".join(flags)
       if matched == None:
          message = "{} supplied invalid dice string: {}".format(user,dstring)
@@ -180,6 +184,35 @@ class Dicehammer:
       word = rw.random_word()
       message = "{} got '{}'.".format(ctx.message.author.mention, word)
       await(self.bot.say(message))
+
+   @commands.group(pass_context = True)
+   async def mode (self, ctx, *flags):
+      """
+         Sets default dice flags, to be used on dice without any special settings in this channel.
+
+         Dice mode is volatile, and will not be preserved if the bot restarts; we recommend
+         setting the dice mode before a given game to be sure.
+      """
+      if len(flags) == 0:
+         if ctx.message.channel in diceMode:
+            current = diceMode[ctx.message.channel]
+            msg = "Channel default dice mode is currently: **{}**.".format(" ".join(current))
+         else:
+            msg = "No dice mode set for this channel."
+      elif len(flags) == 1 and flags[0] == "clear":
+         diceMode.pop(ctx.message.channel,None)
+         msg = "Channel default dice mode cleared."
+      else:
+         diceMode[ctx.message.channel] = flags
+         msg = "Channel default dice mode set to: **{}**.".format(" ".join(flags))
+      await(self.bot.say(msg))
+
+   @mode.command(pass_context=True,name="clear")
+   async def _clear (self, ctx):
+      """
+         Clears the dice mode for this channel.
+      """
+      return
 
 
 
