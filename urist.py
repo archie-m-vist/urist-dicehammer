@@ -38,8 +38,9 @@ def main ():
       except KeyboardInterrupt:
          raise
       except Exception as e:
-         print(e)
-         continue
+         with open("urist-err.txt", "a") as errlog:
+            f.write(e)
+         raise
 
 if __name__ == '__main__':
    main()
