@@ -106,9 +106,18 @@ class Dicehammer:
       """
       user = ctx.message.author.mention
       matched = roll_regex.match(dstring)
+      try:
+         print(diceMode[ctx.message.flags])
+      except:
+         pass
       if len(flags) == 0 and ctx.message.channel in diceMode:
-         flags = diceMode[ctx.message.channel]
-      flags = " ".join(flags)
+         flags = diceMode[ctx.message.channel][0]
+         flags = " ".join(flags)
+      elif ctx.message.channel in diceMode and len(flags) == 1+diceMode[ctx.message.channel][1] and flags[0] == "!":
+         mode = " ".join(diceMode[ctx.message.channel][0])
+         flags = mode.format(*flags[1:])
+      else:
+         flags = " ".join(flags)
       if matched == None:
          message = "{} supplied invalid dice string: {}".format(user,dstring)
       else:
@@ -195,7 +204,7 @@ class Dicehammer:
       """
       if len(flags) == 0:
          if ctx.message.channel in diceMode:
-            current = diceMode[ctx.message.channel]
+            current = diceMode[ctx.message.channel][0]
             msg = "Channel default dice mode is currently: **{}**.".format(" ".join(current))
          else:
             msg = "No dice mode set for this channel."
@@ -203,7 +212,7 @@ class Dicehammer:
          diceMode.pop(ctx.message.channel,None)
          msg = "Channel default dice mode cleared."
       else:
-         diceMode[ctx.message.channel] = flags
+         diceMode[ctx.message.channel] = [flags, flags.count("{}")]
          msg = "Channel default dice mode set to: **{}**.".format(" ".join(flags))
       await(self.bot.say(msg))
 
