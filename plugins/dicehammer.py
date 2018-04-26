@@ -118,7 +118,7 @@ class Dicehammer:
          elif len(flags) == 1+count and flags[0] == "!":
             mode = " ".join(mode)
             flags = mode.format(*flags[1:]).split(" ")
-      print(flags)
+      print("Flags: ",flags)
       if matched == None:
          message = "{} supplied invalid dice string: {}".format(user,dstring)
       else:
@@ -411,7 +411,7 @@ def multiroll (rolls, count, sides, modifier, flags):
 
    # parse flags from input
    try:
-      flags = parse_flags(flags)
+      flags = parse_flags([x for x in flags])
    except Exception as e:
       return "Exception!", "Critical error during flag parsing, contact the administrator: {}".format(str(e))
    if len(flags["errors"]) > 0:
