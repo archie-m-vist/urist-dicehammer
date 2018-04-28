@@ -3,6 +3,15 @@ from util.fishutil import is_integer
 def parse_flags (flags):
    output = {}
    output["errors"] = []
+   # list of parser functions
+   parsers = {
+      "explode" : parse_explode,
+      "drop" : parse_drop,
+      "degrees" : parse_degrees,
+      "successes" : parse_successes,
+      "verbose" : lambda flags, index: (index+1, True, None),
+      "sets" : parse_sets
+   }
    # iterate across flags
    index = 0
    while index < len(flags):
@@ -10,20 +19,8 @@ def parse_flags (flags):
       flag = flags[index].lower()
       errors = None
       # exploding dice
-      if flag == "explode":
-         index, output["explode"], errors = parse_explode(flags,index+1)
-      # drop highest/lowest
-      elif flag == "drop":
-         index, output["drop"], errors = parse_drop(flags,index+1)
-      # degrees of success/failure
-      elif flag == "degrees":
-         index, output["degrees"], errors = parse_degrees(flags,index+1)
-      # verbose output
-      elif flag == "successes":
-         index, output["successes"], errors = parse_successes(flags,index+1)
-      elif flag == "verbose":
-         output["verbose"] = True
-         index += 1
+      if flag in parsers:
+         index, output[flag], errors = parsers[flag](flags,index+1)
       # if word is not a flag, move to next index
       else:
          index += 1
@@ -198,4 +195,34 @@ def parse_successes (flags, index):
       else:
          break
       index += 1
+   return index, value, errors
+
+def parse_sets (flags, index):
+   """
+   Processes the arguments to the successes keyword.
+
+   Parameters:
+         flags - list of flags
+         index - index of the first flag after the sets keyword
+
+   Returns: 
+       index - the index of the first keyword after the last sets argument
+       value - a list containing parsed arguments, to be stored in output["sets"] by parse_flags
+             - value[0]: Value of a given expert die; -1 if not set.
+      errors - a list of errors, to be added to output["errors"] with extend().
+   """
+   value = [-1]
+   errors = []
+   while ( index < len(flags) ):
+      temp = flags[index]
+      if temp == "expert" or temp == "e":
+         if index+1 < len(flags):
+            try:
+               value[0] = int(flags[index+1])
+               index += 1
+            except ValueError:
+               errors.append("Expert die value must be integer.")
+         else:
+            errors.append("Expected value after sets expert flag.")
+         index += 1
    return index, value, errors
