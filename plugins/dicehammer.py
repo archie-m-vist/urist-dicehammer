@@ -187,6 +187,13 @@ class Dicehammer:
        - double n: Value for critical successes, counting double. Default is the number of sides per die. 0 or off disables."""
       return
 
+   @roll.command(name="sets")
+   async def _sets (self):
+      """Calculates sets for use in a dice sets system.
+
+      Additional Options:
+       - expert n [shorthand: e n]: Adds a dice of value n to the relevant rolled set."""
+
    @commands.command(pass_context = True)
    async def word (self, ctx):
       """Generates a random word."""
@@ -361,6 +368,8 @@ def roll_parsed (count,sides,modifier,flags):
       total, results = run_degrees(total, results, flags["degrees"])
    if "successes" in flags:
       total, results = run_successes(total, results, flags["successes"])
+   if "sets" in flags:
+      total, results = run_sets(total, results, flags["sets"])
    return total, results
 
 def run_successes (total, results, value):
@@ -384,6 +393,28 @@ def run_successes (total, results, value):
    if total == 0 and total_botch > 0:
       total = "Botch {}".format(total_botch)
    return total, results
+
+def run_sets (total, results, value):
+   temp = set([])
+   buckets = {}
+   # expert die, if given
+   if value[0] != -1:
+      temp.add(value[0])
+   # print results
+   for result in results:
+      if result not in buckets:
+         if result not in temp:
+            temp.add(result)
+         else:
+            buckets[result] = 2
+      else:
+         buckets[result] += 1
+   keys = [x for x in buckets.keys()]
+   keys.sort()
+   keys.reverse()
+   sets = ["{}W{}H".format(buckets[key], key) for key in keys]
+   singles = [x for x in temp if x not in buckets]
+   return sets, "Singles: {}".format(" ".join([str(x) for x in sorted(singles)]))
 
 def roll (count, sides, modifier, flags):
    """
@@ -413,6 +444,7 @@ def multiroll (rolls, count, sides, modifier, flags):
    try:
       flags = parse_flags([x for x in flags])
    except Exception as e:
+      print(e)
       return "Exception!", "Critical error during flag parsing, contact the administrator: {}".format(str(e))
    if len(flags["errors"]) > 0:
       return "Flag-parsing errors: ", flags["errors"]
@@ -421,6 +453,7 @@ def multiroll (rolls, count, sides, modifier, flags):
    try:
       flags = check_flags(flags,count,sides,modifier)
    except exception as e:
+      print(e)
       return "Exception!", "Critical error during flag checking, contact the administrator: {}".format(str(e))
    if len(flags["errors"]) > 0:
       return "Flag-processing errors: ", flags["errors"]
