@@ -1,6 +1,8 @@
 import discord
+from time import gmtime, strftime
 from discord.ext import commands
 from secret import token, prefix
+import traceback
 
 description = '''Urist Dicehammer, providing highly-featured dice and Dwarf Fortress memes since 2016.'''.format(prefix,prefix)
 
@@ -32,6 +34,11 @@ async def admin():
    await(bot.say(message))
 
 def main ():
+   f = open("urist-err.txt", "a")
+   f.write("================================")
+   f.write("Launched at {}".format(strftime("%a, %d %b %Y %H:%M:%S", gmtime())))
+   f.write("================================")
+   f.close()
    while True:
       try:
          bot.run(token)
@@ -39,7 +46,8 @@ def main ():
          raise
       except Exception as e:
          with open("urist-err.txt", "a") as errlog:
-            f.write(e)
+            errlog.write("Error occurred at {}:".format(strftime("%a, %d %b %Y %H:%M:%S", gmtime())))
+            traceback.print_exc(file=errlog)
          raise
 
 if __name__ == '__main__':
