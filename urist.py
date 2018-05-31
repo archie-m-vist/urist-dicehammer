@@ -8,7 +8,7 @@ description = '''Urist Dicehammer, providing highly-featured dice and Dwarf Fort
 
 bot = commands.Bot(command_prefix=prefix, description=description)
 
-extensions = ['plugins.admin','plugins.dicehammer','plugins.jeweler', 'plugins.manager']
+extensions = ['plugins.admin','plugins.dicehammer','plugins.jeweler', 'plugins.manager', 'plugins.performer']
 
 @bot.event
 async def on_ready():
