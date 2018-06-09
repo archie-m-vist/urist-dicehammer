@@ -12,7 +12,7 @@ touhousByGame = [
    ["Aya", "Medicine", "Komachi", "Eiki"],
    ["Shizuha", "Minoriko", "Hina", "Nitori", "Momiji", "Sanae", "Kanako", "Suwako"],
    ["Kisume", "Yamame", "Parsee", "Yuugi", "Satori", "Rin", "Utsuho", "Koishi"],
-   ["Nazrin", "Kogasa", "Ichirin", "Unzan", "Murasa", "Shou", "Byakuren", "Nue"],
+   ["Nazrin", "Kogasa", "Ichirin", "Unzan", "Minamitsu", "Shou", "Byakuren", "Nue"],
    ["Kyouko", "Yoshika", "Seiga", "Tojiko", "Futo", "Miko", "Mamizou"],
    ["Wakasagihime", "Sekibanki", "Kagerou", "Benben", "Yatsuhashi", "Seija", "Shinmyoumaru", "Raiko"],
    ["Seiran", "Ringo", "Doremy", "Sagume", "Clownpiece", "Junko", "Hecatia"],
@@ -38,7 +38,7 @@ spinoffGames = [
 otherTouhous = [
    ["Rinnosuke", "Tokiko"],
    ["Luna", "Star", "Sunny"], 
-   ["Rei'sen", "Toyohime", "Yorihime", "Chang'e", "Tsukuyomi", "Iwakasa"],
+   ["Reisen (SSiB)", "Toyohime", "Yorihime", "Chang'e", "Tsukuyomi", "Iwakasa"],
    ["Kasen"],
    ["Kosuzu"],
    ["Maribel", "Renko"],
