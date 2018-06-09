@@ -16,7 +16,7 @@ touhousByGame = [
    ["Kyouko", "Yoshika", "Seiga", "Tojiko", "Futo", "Miko", "Mamizou"],
    ["Wakasagihime", "Sekibanki", "Kagerou", "Benben", "Yatsuhashi", "Seija", "Shinmyoumaru", "Raiko"],
    ["Seiran", "Ringo", "Doremy", "Sagume", "Clownpiece", "Junko", "Hecatia"],
-   ["Eternity", "Nemuno", "Aunn", "Narumi", "Satono", "Teireida Mai", "Okina"]
+   ["Eternity", "Nemuno", "Aunn", "Narumi", "Satono", "Mai (HSiFS)", "Okina"]
 ]
 
 spinoffNumbers = {
