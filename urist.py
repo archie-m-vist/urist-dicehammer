@@ -20,18 +20,21 @@ async def on_ready():
       try:
          bot.load_extension(extension)
          print("Successfully loaded extension '{}'".format(extension))
+      except commands.ExtensionNotFound as e:
+         print("Error loading extension '{}'".format(extension))
+         print("discord.py ExtensionNotFound got error: {}".format(e.original))
       except Exception as e:
          print("Error loading extension '{}'".format(extension))
          print("{}: {}".format(type(e).__name__, e))
    print("-- beginning log --")
 
 @bot.command()
-async def admin():
+async def admin(ctx):
    """Gives administrator contact information."""
    info = await(bot.application_info())
    mention = info.owner.mention
-   message = "My administrator is the glorious {}. Fear him, for he is mighty.".format(mention)
-   await(bot.say(message))
+   message = "My administrator is the glorious {}. Fear them, for they are mighty.".format(mention)
+   await(ctx.send(message))
 
 def main ():
    f = open("urist-err.txt", "a")
