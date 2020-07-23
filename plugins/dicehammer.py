@@ -13,7 +13,7 @@ diceMode = {}
 roll_regex = re.compile("(\d*#)?(\d*)d(\d+)((\+|-)(\d+))?")
 rw = RandomWords()
 
-class Dicehammer:
+class Dicehammer (commands.Cog):
    """
       Plugin for all dice and random-generation utilities.
    """
@@ -29,7 +29,7 @@ class Dicehammer:
           - number (optional): Number of coins to flip. If not provided, defaults to 1.
       """
       heads, tails = run_coinflip(number)
-      user = ctx.message.author.mention
+      user = ctx.author.mention
       if number < 1:
          message = "{} attempted to flip negative coins, and only got reminded of their debts.".format(user)
       elif number > 1:
@@ -37,7 +37,7 @@ class Dicehammer:
       else:
          result = 'heads' if heads > 0 else 'tails'
          message = "{} flipped a coin and got **{}**.".format(user, result)
-      await(self.bot.say(message))
+      await(ctx.send(message))
 
    @commands.group(pass_context = True)
    async def choose(self,ctx,*options):
@@ -48,7 +48,7 @@ class Dicehammer:
           - options: This can either be the name of a preconstructed list, or a list of items separated by commas. Items may contain any character other than a comma.
       """
       if ctx.invoked_subcommand == None:
-         user = ctx.message.author.mention
+         user = ctx.author.mention
          options = " ".join(options)
          options = options.split(",")
          if len(options) == 0:
@@ -65,7 +65,7 @@ class Dicehammer:
          else:
             result = random.choice(options)
             message = "{} gets: **{}**".format(user,result)
-         await(self.bot.say(message))
+         await(ctx.send(message))
 
    @choose.command(name='lists')
    async def _lists(self):
@@ -73,7 +73,7 @@ class Dicehammer:
          Lists all available preconstructed lists.
       """
       message = get_lists()
-      await(self.bot.say(message))
+      await(ctx.send(message))
 
    @commands.command(pass_context = True)
    async def shuffle(self,ctx,*options):
@@ -83,7 +83,7 @@ class Dicehammer:
          Arguments:
           - options: A list of items separated by commas. (shuffle does not accept preconstructed list names.)
       """
-      user = ctx.message.author.mention
+      user = ctx.author.mention
       options = " ".join(options)
       options = options.split(",")
       random.shuffle(options)
@@ -93,7 +93,7 @@ class Dicehammer:
          if (len(options) > 0):
             result += ", "
       message = "{} gets: **{}**".format(user,result)
-      await(self.bot.say(message))
+      await(ctx.send(message))
 
    @commands.group(pass_context = True)
    async def roll(self,ctx,dstring,*flags):
@@ -104,7 +104,7 @@ class Dicehammer:
           - dstring: A dice string. dN to roll an N-sided die, MdN to roll M N-sided dice, R#MdN to roll M N-sided dice R times. Supports + afterwards for final modifiers.
           - flags: A variety of flags. See subcommands for specific flag usage.
       """
-      user = ctx.message.author.mention
+      user = ctx.author.mention
       matched = roll_regex.match(dstring)
       try:
          print(diceMode[ctx.message.flags])
@@ -139,9 +139,9 @@ class Dicehammer:
             else: # verbose flag for long messages
                message = "{} rolled {}: **{}**".format(user,dstring,total)
                while len(results) > 0:
-                  await(self.bot.say(message))
+                  await(ctx.send(message))
                   message = results.pop()
-      await(self.bot.say(message))
+      await(ctx.send(message))
 
    # placeholders for documentation purposes
    @roll.command(name="drop")
@@ -198,8 +198,8 @@ class Dicehammer:
    async def word (self, ctx):
       """Generates a random word."""
       word = rw.random_word()
-      message = "{} got '{}'.".format(ctx.message.author.mention, word)
-      await(self.bot.say(message))
+      message = "{} got '{}'.".format(ctx.author.mention, word)
+      await(ctx.send(message))
 
    @commands.group(pass_context = True)
    async def mode (self, ctx, *flags):
@@ -221,7 +221,7 @@ class Dicehammer:
       else:
          diceMode[ctx.message.channel] = [flags, flags.count("{}")]
          msg = "Channel default dice mode set to: **{}**.".format(" ".join(flags))
-      await(self.bot.say(msg))
+      await(ctx.send(msg))
 
    @mode.command(pass_context=True,name="clear")
    async def _clear (self, ctx):
