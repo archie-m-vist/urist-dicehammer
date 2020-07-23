@@ -1,20 +1,19 @@
 import discord
 from discord.ext import commands
 
-class Jeweler:
+class Jeweler (commands.Cog):
    """Plugin for managing pins and reactions. !pin command requires Manage Roles permission in Discord."""
 
    def __init__ (self, bot):
       self.bot = bot
 
-   @commands.command(pass_context = True)
+   @commands.command()
    async def pin (self, ctx):
       """Pins a message if Urist has appropriate permissions."""
       try:
-         await self.bot.pin_message(ctx.message)
+         await ctx.message.pin()
       except:
-         await self.bot.say("Cannot pin message; check permissions.")
-
+         await ctx.send("Cannot pin message; check permissions.")
 
 def setup (bot):
    bot.add_cog(Jeweler(bot))

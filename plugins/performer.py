@@ -84,14 +84,14 @@ class WagerTracker:
       else:
          raise WagerNotRunningException()
 
-class Performer:
+class Performer (commands.Cog):
    """Module with support for various games involving cards or points."""
 
    def __init__ (self, bot):
       self.bot = bot
       self.tracker = WagerTracker()
 
-   @commands.group(pass_context = True)
+   @commands.group()
    async def wager (self, ctx):
       """Run games that involve a points pool. Use !wager start to create a game, and !wager join to join one."""
       if ctx.invoked_subcommand is None:
@@ -105,9 +105,9 @@ class Performer:
             else:
                msg = "A game is running in this channel. To join this channel's game, use `!wager join`."
          msg = "No wager subcommand given.\n{}".format(msg)
-         await self.bot.say(msg)
+         await ctx.send(msg)
 
-   @wager.command(name = "start", pass_context = True)
+   @wager.command(name = "start")
    async def start (self, ctx, points = 10):
       channel = ctx.message.channel
       player = ctx.message.author
@@ -123,9 +123,9 @@ class Performer:
             msg = "Game started, but join error: {}".format(str(e))
          if msg is None:
             msg = "{} has started a game!".format(player.mention)
-      await self.bot.say(msg)
+      await ctx.send(msg)
 
-   @wager.command(pass_context = True)
+   @wager.command()
    async def join (self, ctx):
       channel = ctx.message.channel
       player = ctx.message.author
@@ -136,9 +136,9 @@ class Performer:
          msg = "Error: {}".format(str(e))
       if msg is None:
          msg = "{} has joined the game!".format(player.mention)
-      await self.bot.say(msg)
+      await ctx.send(msg)
 
-   @wager.command(pass_context = True)
+   @wager.command()
    async def bet (self, ctx, points = 1):
       channel = ctx.message.channel
       player = ctx.message.author
@@ -149,9 +149,9 @@ class Performer:
          msg = "Error: {}".format(str(e))
       if msg is None:
          msg = "{} adds {} points to the pool!".format(player.mention,points)
-      await self.bot.say(msg)
+      await ctx.send(msg)
 
-   @wager.command(pass_context = True)
+   @wager.command()
    async def claim (self, ctx):
       channel = ctx.message.channel
       player = ctx.message.author
@@ -172,9 +172,9 @@ class Performer:
          # if claim was successful, inform player
          if msg is None:
             msg = "{} has claimed the pot, worth {} points.".format(player.mention,pot)
-      await self.bot.say(msg)
+      await ctx.send(msg)
 
-   @wager.command(pass_context = True)
+   @wager.command()
    async def score (self, ctx):
       channel = ctx.message.channel
       player = ctx.message.author
@@ -188,9 +188,9 @@ class Performer:
       # if no error found, give result
       if msg is None:
          msg = "Current score for {} is {} points.".format(player.mention, score)
-      await self.bot.say(msg)
+      await ctx.send(msg)
 
-   @wager.command(pass_context = True)
+   @wager.command()
    async def stop (self, ctx):
       """Ends the game in this channel."""
       channel = ctx.message.channel
@@ -208,7 +208,7 @@ class Performer:
             else:
                mention = score[0].mention
             msg += "**\n{}**: {} points".format(mention, score[1])
-      await self.bot.say(msg)
+      await ctx.send(msg)
 
 def setup (bot):
    bot.add_cog(Performer(bot))
